@@ -1,0 +1,2 @@
+# 줄바꿈은 항상 LF (Windows autocrlf로 CRLF가 섞이면 CloudFront 함수 코드·셸 스크립트가 달라짐)
+* text=auto eol=lf
