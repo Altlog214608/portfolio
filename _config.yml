@@ -1,4 +1,6 @@
-# GitHub Pages(Jekyll) 빌드 설정: 관리자 도구와 문서는 배포하지 않는다.
+# GitHub Pages(Jekyll) 빌드 설정: 관리자 도구, 인프라, 문서는 배포하지 않는다.
 exclude:
   - admin
+  - infra
+  - scripts
   - README.md
