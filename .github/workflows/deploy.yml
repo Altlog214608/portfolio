@@ -1,0 +1,35 @@
+name: Deploy
+
+# main에 머지되면 사이트 파일을 S3에 올리고 CloudFront 캐시를 비운다.
+# 인프라(infra/terraform)는 로컬에서 terraform apply로 바꾸고, 이 워크플로는 파일만 배포한다.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # environment를 붙이면 OIDC 토큰의 sub가 environment 기준으로 바뀌어 역할 신뢰 조건(main 브랜치)과 맞지 않는다
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-northeast-2
+          mask-aws-account-id: true
+
+      - name: S3 업로드 · CloudFront 캐시 무효화
+        env:
+          BUCKET: ${{ vars.WEB_BUCKET }}
+          DISTRIBUTION_ID: ${{ vars.DISTRIBUTION_ID }}
+        run: bash scripts/deploy.sh
