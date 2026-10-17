@@ -29,6 +29,7 @@
       try { t = localStorage.getItem("kd_portfolio_theme"); } catch (e) {}
       if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       document.documentElement.dataset.theme = t;
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("motion");
     })();
   </script>
 
@@ -42,7 +43,7 @@
 
   <header class="site-header">
     <div class="container nav">
-      <a class="brand" href="#home" aria-label="김동현 포트폴리오 홈"><span class="brand-mark" aria-hidden="true">KD</span><span>김동현</span></a>
+      <a class="brand" href="#home" aria-label="김동현 포트폴리오 홈"><span class="brand-mark" aria-hidden="true">DH</span><span>김동현</span></a>
       <div class="nav-right">
         <nav class="nav-links" id="navLinks" aria-label="주요 메뉴">
           <a href="#about">About</a>
