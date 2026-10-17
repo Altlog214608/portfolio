@@ -65,7 +65,7 @@
     const photo = srcSafe(p.photo);
     $("photoBox").innerHTML = photo
       ? `<img class="profile-photo" src="${esc(photo)}" alt="${esc(p.name)} 프로필 사진" width="478" height="650" fetchpriority="high">`
-      : `<div class="photo-placeholder" aria-hidden="true">KD</div>`;
+      : `<div class="photo-placeholder" aria-hidden="true">DH</div>`;
     $("contactMini").innerHTML = [
       `<strong>${esc(p.name)}</strong>`,
       p.email ? `<a href="mailto:${esc(p.email)}">✉ ${esc(p.email)}</a>` : "",
@@ -89,7 +89,7 @@
       [data.certifications.length, "자격증"],
       [data.awards.length, "수상"],
     ];
-    $("stats").innerHTML = stats.map(([n, label]) => `<div class="stat card"><b>${n}</b><span>${label}</span></div>`).join("");
+    $("stats").innerHTML = stats.map(([n, label]) => `<div class="stat card"><b data-count="${n}">${n}</b><span>${label}</span></div>`).join("");
   }
 
   function renderSkills() {
@@ -124,6 +124,7 @@
       <div class="project-body">
         <div class="project-title-row"><h3>${esc(project.title)}</h3><span class="mini-badge">${esc(project.level || "Project")}</span></div>
         <p>${esc(project.description)}</p>
+        ${highlights(project)}
         <ul class="project-tags" role="list">${(project.tags || []).slice(0, 5).map((t) => `<li class="chip">${esc(t)}</li>`).join("")}</ul>
         <div class="project-foot">
           <span class="project-date">${esc(project.date || "")}</span>
@@ -217,11 +218,18 @@
   function architectureFlows(project) {
     const flows = (project.architectureFlows || []).filter((f) => f.nodes && f.nodes.length);
     if (!flows.length) return "";
-    return `<div class="flows">${flows.map((f) => `
-      <div class="flow">
+    // --r / --i drive the staggered "data flowing" animation in CSS.
+    return `<div class="flows">${flows.map((f, r) => `
+      <div class="flow" style="--r:${r}">
         <div class="flow-label">${esc(f.label || "흐름")}</div>
-        <ol class="flow-nodes">${f.nodes.map((n) => `<li><span class="service">${esc(n)}</span></li>`).join("")}</ol>
+        <ol class="flow-nodes">${f.nodes.map((n, i) => `<li style="--i:${i}"><span class="service">${esc(n)}</span></li>`).join("")}</ol>
       </div>`).join("")}</div>`;
+  }
+
+  function highlights(project) {
+    const rows = (project.highlights || []).filter((h) => h.value);
+    if (!rows.length) return "";
+    return `<ul class="highlights" role="list">${rows.map((h) => `<li><b>${esc(h.value)}</b><span>${esc(h.label || "")}</span></li>`).join("")}</ul>`;
   }
 
   function galleryGrid(project) {
@@ -263,6 +271,7 @@
             <div class="eyebrow">Project Case Study</div>
             <h2 id="modalProjectTitle">${esc(project.title)}</h2>
             <p class="modal-summary">${esc(project.description)}</p>
+            ${highlights(project)}
             <ul class="project-tags" role="list">${(project.tags || []).map((t) => `<li class="chip">${esc(t)}</li>`).join("")}</ul>
           </div>
           <div class="modal-facts">${facts}</div>
@@ -288,6 +297,14 @@
       if (on && focus) t.focus();
     });
     modal.querySelectorAll('[role="tabpanel"]').forEach((p) => { p.hidden = p.id !== `panel-${id}`; });
+
+    // Replay the architecture flow animation each time the tab is opened.
+    const flows = id === "architecture" && modal.querySelector(".flows");
+    if (flows) {
+      flows.classList.remove("animate");
+      void flows.offsetWidth;
+      flows.classList.add("animate");
+    }
   }
 
   function openModal(project) {
@@ -461,6 +478,51 @@
     window.addEventListener("hashchange", route);
   }
 
+  /* ---------- Motion ---------- */
+
+  // The inline script in <head> adds html.motion unless the user prefers reduced motion.
+  const motionOn = () => document.documentElement.classList.contains("motion");
+
+  function countUp(el) {
+    const target = Number(el.dataset.count);
+    if (!Number.isFinite(target) || target <= 0) return;
+    const start = performance.now(), duration = 900;
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3)));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    el.textContent = "0";
+    requestAnimationFrame(tick);
+  }
+
+  function setupReveal() {
+    if (!motionOn() || !("IntersectionObserver" in window)) return;
+    const targets = document.querySelectorAll(
+      "main section:not(.hero) .section-head, .about-card, .stat, .skill-group, .project-group-head, .project-card, .timeline-item, .cert-card, .achievements, .contact-card"
+    );
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        observer.unobserve(el);
+        el.classList.add("is-visible");
+        const counter = el.querySelector("[data-count]");
+        if (counter) countUp(counter);
+        // Drop the reveal styles afterwards so hover transitions are not delayed.
+        const delay = parseInt(el.style.getPropertyValue("--delay"), 10) || 0;
+        setTimeout(() => { el.classList.remove("reveal", "is-visible"); el.style.removeProperty("--delay"); }, 700 + delay);
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+
+    targets.forEach((el) => {
+      const index = [...el.parentElement.children].indexOf(el);
+      el.style.setProperty("--delay", `${(index % 4) * 80}ms`);
+      el.classList.add("reveal");
+      observer.observe(el);
+    });
+  }
+
   /* ---------- Init ---------- */
 
   bindThemeToggle();
@@ -471,9 +533,14 @@
     .then((json) => {
       data = json;
       renderAll();
+      setupReveal();
+      document.querySelector(".hero").classList.add("hero-ready");
       const hash = location.hash;
       if (hash.startsWith("#project/")) route();
       else if (hash.length > 1) document.getElementById(hash.slice(1))?.scrollIntoView();
     })
-    .catch(showLoadError);
+    .catch((err) => {
+      document.querySelector(".hero").classList.add("hero-ready");
+      showLoadError(err);
+    });
 })();

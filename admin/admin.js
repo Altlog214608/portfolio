@@ -220,9 +220,14 @@
     return { label, nodes };
   });
 
+  const textToHighlights = (text) => text.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => {
+    const [value, ...rest] = line.split("|");
+    return { value: value.trim(), label: rest.join("|").trim() };
+  });
+
   function projectForm(id = "") {
     const existing = data.projects.find((p) => p.id === id);
-    const p = existing || { id: "", title: "", category: "", level: "", date: "", description: "", role: "", tags: [], github: "", demo: "", image: "", overview: "", problem: "", contribution: "", implementation: "", architecture: "", architectureFlows: [], troubleshooting: "", result: "", gallery: [], published: false, featured: false, live: false };
+    const p = existing || { id: "", title: "", category: "", level: "", date: "", description: "", highlights: [], role: "", tags: [], github: "", demo: "", image: "", overview: "", problem: "", contribution: "", implementation: "", architecture: "", architectureFlows: [], troubleshooting: "", result: "", gallery: [], published: false, featured: false, live: false };
     galleryDraft = JSON.parse(JSON.stringify(p.gallery || []));
 
     content.innerHTML = title(existing ? "프로젝트 수정" : "프로젝트 추가", "상세 모달의 탭은 내용이 있는 항목만 표시됩니다.", `<button class="btn secondary" type="button" id="backProjects">목록으로</button>`) + `
@@ -241,6 +246,7 @@
         ${field("GitHub URL", "prGithub", p.github, { type: "url" })}
         ${field("Demo URL", "prDemo", p.demo, { type: "url" })}
         ${field("카드 요약", "prDesc", p.description, { type: "textarea", full: true })}
+        ${field("핵심 지표 (카드에 크게 표시)", "prHighlights", (p.highlights || []).map((h) => `${h.value} | ${h.label}`).join("\n"), { type: "textarea", full: true, helper: "한 줄에 하나: <code>값 | 설명</code> (예: <code>$0.15 | 월 AWS 사용 금액</code>). 3개를 권장합니다." })}
         ${field("역할 (한 줄)", "prRole", p.role, { full: true })}
         ${field("Overview · 프로젝트 개요", "prOverview", p.overview, { type: "textarea", full: true, tall: true })}
         ${field("Problem · 문제와 목표", "prProblem", p.problem, { type: "textarea", full: true })}
@@ -292,6 +298,7 @@
         featured: checked("prFeatured"),
         live: checked("prLive"),
         description: val("prDesc"),
+        highlights: textToHighlights($("prHighlights").value),
         role: val("prRole"),
         tags: csv("prTags"),
         github: val("prGithub"),
