@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>포트폴리오 관리자 (로컬)</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      var t;
+      try { t = localStorage.getItem("kd_portfolio_theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="container admin-shell">
+    <div class="admin-top">
+      <div>
+        <div class="eyebrow">Local Portfolio CMS</div>
+        <h1>관리자 페이지</h1>
+      </div>
+      <div class="toolbar">
+        <a class="btn secondary" href="../index.html?preview" target="_blank" rel="noopener">초안 미리보기 ↗</a>
+        <button class="icon-btn" id="themeToggle" type="button" aria-label="다크 모드로 전환"><span aria-hidden="true">◐</span> <span id="themeLabel">Dark</span></button>
+      </div>
+    </div>
+
+    <div class="notice status-bar" id="statusBar" role="status"></div>
+
+    <div class="admin-grid">
+      <nav class="admin-menu card" id="adminMenu" aria-label="관리 메뉴">
+        <button type="button" class="active" data-panel="profile">페이지 · 프로필</button>
+        <button type="button" data-panel="projects">프로젝트</button>
+        <button type="button" data-panel="skills">스킬</button>
+        <button type="button" data-panel="timeline">연혁</button>
+        <button type="button" data-panel="certs">자격증 · 수상</button>
+        <button type="button" data-panel="publish">사이트에 반영</button>
+      </nav>
+      <section class="admin-content card" id="adminContent" aria-live="polite"></section>
+    </div>
+  </div>
+
+  <script src="../assets/js/common.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
