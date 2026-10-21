@@ -144,7 +144,7 @@
         <div class="project-grid">${list.map(projectCard).join("")}</div>
       </div>`;
     let html = "";
-    if (featured.length) html += group("Featured Projects", "실제로 운영 중이거나 설계부터 깊이 참여한 프로젝트", featured, `<span class="mini-badge accent">${featured.length} CASE STUDIES</span>`);
+    if (featured.length) html += group("Featured Projects", "운영 중이거나 주요 역할을 맡은 프로젝트", featured, `<span class="mini-badge accent">${featured.length} CASE STUDIES</span>`);
     if (archive.length) html += group("Archive", "학부 시절 하드웨어·임베디드 프로젝트", archive);
     $("projectGroups").innerHTML = html || '<div class="empty">게시된 프로젝트가 없습니다.</div>';
   }
