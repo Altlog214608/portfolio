@@ -3,7 +3,7 @@
   "settings": {
     "heroEyebrow": "Cloud Engineer · Developer",
     "heroLead": "서비스를 만들고,",
-    "heroAccent": "안정적으로 운영되는 환경까지 설계합니다.",
+    "heroAccent": "직접 운영하며 배우고 있습니다.",
     "heroDescription": "개발자로 일한 경험을 바탕으로, 직접 만든 서비스를 AWS에 올려 배포부터 운영·비용까지 맡고 있습니다.",
     "showAchievements": true,
     "heroBadge": "Cloud · Serverless · Automation"
@@ -102,16 +102,16 @@
     {
       "id": "digitalscents",
       "period": "2025.07 ~ 2026.02",
-      "title": "소프트웨어 개발 (계약직, 7개월)",
+      "title": "연구원 · 소프트웨어 개발 (계약직, 7개월)",
       "subtitle": "디지털센트",
-      "description": "Python으로 작성된 기존 소프트웨어의 UI와 기능 리팩토링, 결과를 확인하는 모바일 화면 개발, 기존 소프트웨어를 기반으로 한 신규 향수 소프트웨어 개발"
+      "description": "Python(PySide6)으로 작성된 기기 제어 소프트웨어의 UI와 기능 리팩토링, 결과를 확인하는 모바일 화면 개발, 기존 소프트웨어를 기반으로 한 신규 향수 소프트웨어 개발"
     },
     {
       "id": "greentech",
       "period": "2024.11 ~ 2025.05",
       "title": "계룡건설 빅데이터 기반 Green Tech SW 개발자 과정",
       "subtitle": "미래융합교육원",
-      "description": "Python, Java, Spring Boot, HTML/CSS/JavaScript, MySQL 기반 실무형 개발 교육 및 공공데이터 활용 프로젝트 수행"
+      "description": "Python, Java, Spring Boot, HTML/CSS/JavaScript, MySQL 개발 교육과 공공데이터 활용 팀 프로젝트"
     },
     {
       "id": "naver-rush",
@@ -151,15 +151,15 @@
       "highlights": [
         {
           "value": "$0.15",
-          "label": "월 AWS 사용 금액"
+          "label": "2주간 AWS 사용 금액"
         },
         {
           "value": "8.7초",
           "label": "변환 처리 p95"
         },
         {
-          "value": "0건",
-          "label": "부하 테스트 5xx"
+          "value": "0개",
+          "label": "상시 서버(EC2·NAT)"
         }
       ],
       "role": "1인 개발 · 기획, 아키텍처·비용 설계, Terraform 인프라와 CI/CD, 측정과 기술 결정 기록(ADR) / 코드 구현은 AI 코딩 도구(Claude Code)와 협업",
@@ -185,7 +185,7 @@
       "problem": "미디어 변환 서비스는 보통 상시 켜진 서버나 GPU 인스턴스로 만들어 사용자가 없어도 비용이 나갑니다. 개인 프로젝트로 오래 운영하려면 '쓰지 않을 때는 거의 0원, 쓰는 만큼만 비용'인 구조가 필요했습니다.\n\n목표\n• 상시 과금 리소스 없이(EC2·NAT Gateway·상시 Fargate 0개) 서비스 전체를 구성\n• 작업마다 가장 싼 곳에서 처리: 브라우저 > Lambda > Fargate\n• 비용·처리 시간·부하 한계를 직접 측정하고, 결정 근거를 ADR로 남기기\n• 인프라 전체를 코드(Terraform)로, 배포는 PR·머지만으로",
       "contribution": "설계와 운영 결정\n• 처리 위치 결정: 사진은 브라우저(Web Worker)에서 끝내 서버 비용 0, 영상은 측정 결과 모든 작업이 Lambda 한도 안에 끝나 Fargate 없이 Lambda로\n• 비용 상한을 설계에 포함: IP 해시별 일일 할당량, API 속도 제한, 워커 동시 실행 상한, 입력 크기·길이 제한, S3 수명 주기, Athena 스캔 한도, 월 예산 알림\n• 기술 결정 기록(ADR) 52개 작성\n\n인프라·보안\n• Terraform 모듈 10개, S3 원격 상태, 서울 리전\n• GitHub Actions + AWS OIDC로 plan 역할과 배포 역할 분리, 권한 경계 적용 (장기 액세스 키 없음)\n• 비밀값은 SSM, 스트리머 OAuth 토큰은 KMS로 암호화, 관리자 API는 Cognito 관리자 그룹 + MFA\n• Route 53·ACM(DNS 검증)·CloudFront 별칭까지 코드로, www·cloudfront.net 주소는 CloudFront Function으로 301\n\n개발 방식 (AI 협업)\n• 요구사항과 설계 원칙을 정하고 Claude Code와 함께 구현했으며, 커밋 기록에 AI 공동 작성이 표시되어 있습니다.",
       "implementation": "업로드는 presigned POST로 브라우저에서 S3에 직접 올리고, API Lambda가 잡을 SQS에 넣으면 ffmpeg 컨테이너 이미지 기반 Lambda 워커(arm64)가 처리해 결과를 S3에 저장합니다.\n\n사용 이벤트는 SQS → 배치 Lambda → S3 데이터 레이크로 쌓고, Glue + Athena로 집계해 일별 집계 Lambda가 Cost Explorer 비용과 함께 DynamoDB에 저장합니다. 무료 플랜 제약 때문에 Firehose 대신 SQS + 배치 Lambda, WAF 대신 API 속도 제한을 택했습니다.\n\n하이라이트는 방송이 시작될 때만 Fargate 수집기가 떠서 채팅을 SQS로 보내고, 지연 SQS를 거친 분석 Lambda가 후보 구간 점수를 계산합니다. 수집 중인 방송이 없으면 태스크는 0개입니다.\n\n테스트: Vitest(단위), Playwright(E2E: 데스크톱·Pixel 7·iPhone), k6(부하). PR에서 lint·test·terraform plan, main 머지 시 apply와 배포가 자동으로 실행됩니다.",
-      "architecture": "모든 구성 요소는 요청이 있을 때만 비용이 나는 서비스로 골랐습니다. 상시 비용은 Route 53 호스팅 영역 월 $0.50뿐입니다. 관측은 CloudWatch 대시보드 하나와 알람 8개(잡 실패율, 실패 대기열, Lambda 오류, API 5xx)를 무료 한도 안에서 SNS 이메일로 받습니다.",
+      "architecture": "모든 구성 요소는 요청이 있을 때만 비용이 나는 서비스로 골랐습니다. 상시 비용은 Route 53 호스팅 영역 월 $0.50뿐입니다. 관측은 CloudWatch 대시보드와 알람(잡 실패율, 실패 대기열, Lambda 오류, API 5xx)을 무료 한도 안에서 SNS 이메일로 받습니다.",
       "architectureFlows": [
         {
           "label": "웹 · API",
@@ -230,7 +230,7 @@
         {
           "label": "관측",
           "nodes": [
-            "CloudWatch 알람 8개",
+            "CloudWatch 알람",
             "SNS 이메일"
           ]
         }
@@ -392,8 +392,8 @@
       "github": "https://github.com/Altlog214608/EchoSolar",
       "demo": "",
       "image": "images/projects/ecosolar/card.webp",
-      "overview": "교육과정 최종 팀 프로젝트(3인, 팀장)로 진행했습니다. 실제 지도를 기반으로 사용자가 원하는 위치를 선택하면 AI가 해당 이미지 영역을 분석해 옥상 영역을 추론하고, 사용자가 그 위에 태양광 패널을 자유롭게 배치할 수 있도록 설계했습니다. 배치 결과는 지역별 일조량과 표고 데이터를 반영해 예상 발전량을 계산하고, 같은 전기를 화석연료로 만들 때와 비교한 탄소 절감량까지 차트와 수치로 보여 줍니다.\n\n개발 환경: React 18(프론트), Spring Boot 3.4 · Java 21(서버), Flask · PyTorch(AI 서버), MySQL 8.0\n개발 도구: VS Code, IntelliJ, PyCharm, QGIS, Figma, Notion, GitHub",
-      "problem": "AI 기술과 이미지 기반 시뮬레이션을 결합해 누구나 쉽고 직관적으로 태양광 패널의 설치 가능 영역과 배치 결과를 확인하고, 발전량을 예측할 수 있는 도구를 만드는 것이 목표였습니다.\n\n주요 목표\n• 사용자 중심 패널 배치·회전·시뮬레이션 인터페이스 제공\n• 실제 환경 기반 발전량 예측\n• 지도·AI·시각화를 통합한 웹 시뮬레이션 플랫폼 구축",
+      "overview": "교육과정 최종 팀 프로젝트(3인, 팀장)로 진행했습니다. 실제 지도를 기반으로 사용자가 원하는 위치를 선택하면 AI가 해당 이미지 영역을 분석해 옥상 영역을 추론하고, 사용자가 그 위에 태양광 패널을 자유롭게 배치할 수 있도록 만들었습니다. 배치 결과는 지역별 일조량과 표고 데이터를 반영해 예상 발전량을 계산하고, 같은 전기를 화석연료로 만들 때와 비교한 탄소 절감량까지 차트와 수치로 보여 줍니다.\n\n개발 환경: React 18(프론트), Spring Boot 3.4 · Java 21(서버), Flask · PyTorch(AI 서버), MySQL 8.0\n개발 도구: VS Code, IntelliJ, PyCharm, QGIS, Figma, Notion, GitHub",
+      "problem": "지도에서 고른 건물 옥상에 태양광 패널을 놓아 보고, 예상 발전량을 바로 확인할 수 있는 웹 도구를 만드는 것이 목표였습니다.\n\n주요 목표\n• 패널 배치·회전 시뮬레이션 화면\n• 실제 환경 기반 발전량 예측\n• 지도·AI·시각화를 하나의 웹 서비스로 연결",
       "contribution": "팀장으로서 데이터 준비부터 지도 · AI 연동 · 시뮬레이션 · 시각화까지, 사용자가 직접 보고 조작하는 흐름 대부분을 맡았습니다.\n\n데이터 수집 · 전처리 (QGIS)\n• AI 학습용 위성 이미지와 행정경계 데이터를 좌표 기반으로 정리\n• 날씨 · 일사량 데이터와 결합해 좌표별 일사량 매핑\n• TIFF 표고 데이터와 행정경계 SHP를 GeoJSON으로 변환\n\n외부 API · AI 서버 연동\n• Naver Maps · VWorld · Kakao Local API를 지도 페이지에 통합\n• '패널 배치 시작' 시 현재 지도 화면을 이미지로 캡처해 Spring 서버를 거쳐 Flask AI 서버로 전송\n• 모델이 돌려준 마스크 · 박스를 Canvas로 지도 위에 시각화\n\n패널 배치 시뮬레이터 · 발전량 예측\n• 드래그, 회전, 크기 조절, 우클릭 삭제 인터랙션\n• 지도 zoom · 중심 좌표로 실제 면적을 계산하고 설치 가능 수 산출\n• 가장 가까운 관측소의 일사량과 표고를 반영한 일/월/년 발전량 예측 알고리즘\n• Chart.js로 결과와 탄소 절감량 시각화\n\n일조량 필터 · 에너지 대시보드\n• 전국 일조량을 시·도 경계 GeoJSON 위에 색 농도로 표시하는 필터\n• 공공데이터 전력 사용량(지역별 · 업종별 · 에너지원별) 시각화",
       "implementation": "AI 모델은 객체의 존재 여부뿐 아니라 픽셀 단위 설치 가능 영역이 필요해 Mask R-CNN(maskrcnn_resnet50_fpn, COCO 사전학습 → 배경/옥상 2클래스 파인튜닝)을 사용했습니다. AI Hub 위성 이미지와 라벨 10,000장으로 50 epoch, batch size 4, SGD(lr 0.005), AMP(Mixed Precision)로 학습해 Train Loss 약 0.21, 검증 이미지 Score 0.8 이상을 얻었습니다. 모델 학습은 팀원이 맡았고, 저는 학습용 데이터와 공간 데이터의 수집·전처리를 담당했습니다.\n\n학습 과정 개선 (팀원 담당)\n• 1,000장 / 30 epoch: epoch 23 이후 Loss가 다시 올라 과적합 → 다음 학습은 25 epoch로 조정\n• 3,000장: batch size 2에서 GPU 메모리 한계 → AMP 적용으로 사용량을 절반으로 줄여 batch size 4로\n• 10,000장 / 50 epoch: 예상 약 22시간 → 최적화 후 약 10시간\n\n전체 서비스 흐름은 지도에서 위치 선택 → React가 지도 화면 캡처 → Spring Boot가 요청을 기록하고 Flask AI 서버로 전달 → Mask R-CNN이 마스크·박스·점수를 JSON으로 반환 → Spring이 처리 시간과 결과를 MySQL에 로그로 저장 → React가 마스크를 지도 위에 그림 → 사용자 패널 배치 → 지역 일조량·표고 보정 → 발전량 계산 및 차트 시각화 순입니다.",
       "architecture": "프론트엔드: React 18, Naver Maps · VWorld(항공·3D 지도) · Kakao Local(장소 검색), Chart.js · Recharts 시각화\n백엔드: Spring Boot 3.4 REST API 게이트웨이(/api/*). AI 요청 중계, 처리 시간 측정, 요청 로그를 Spring Data JPA로 MySQL에 저장\nAI 서버: Flask /predict → Mask R-CNN 추론 → 바운딩 박스 · 마스크 좌표 · 점수 JSON 반환, 추론 로그는 SQLAlchemy로 저장\n데이터: 공공데이터포털(전력 사용량 · 일사량), QGIS로 가공한 시·도 경계 GeoJSON과 표고점",
@@ -421,7 +421,7 @@
         }
       ],
       "troubleshooting": "패널 UI 조작의 자연스러운 사용자 경험\n→ 이미지 요소에 이벤트 리스너를 직접 부여하고 좌표 중심 회전 로직과 크기 변경 시 Bounding Box 재계산을 적용해 드래그·회전·삭제·크기 조절을 안정화했습니다.\n\n회전 중심 좌표 문제\n→ 패널 회전 시 중심점이 어긋나는 현상을 getBoundingClientRect() 기준으로 중심 좌표를 다시 계산해 해결했습니다.\n\nAI mask와 실제 지도 면적 차이\n→ 패널 이미지와 mask에 폴리곤 면적 계산을 적용하고 지도 zoom 레벨과 디스플레이 배율에 따라 스케일을 보정해 실제 설치 가능 면적(m²)에 가깝게 추정했습니다.\n\n일사량 지역 범위 모호성\n→ 좌표가 행정구역 경계에 걸릴 경우 가장 가까운 기상 관측소의 평균 일사량을 선택적으로 적용했습니다.",
-      "result": "지도 API, AI 분석, 공간 데이터 전처리, 동적 UI, 데이터 시각화를 하나의 서비스 흐름으로 연결하면서 전체 시스템 구조를 직접 이해할 수 있었습니다. 특히 React 프론트엔드, Spring Boot 백엔드, Flask AI 서버 간 데이터 흐름을 구현하면서 각 기술이 서비스 안에서 맡는 역할을 구체적으로 경험했습니다.",
+      "result": "지도 API, AI 분석, 공간 데이터 전처리, 동적 UI, 데이터 시각화를 하나의 서비스 흐름으로 연결하면서 전체 시스템 구조를 직접 이해할 수 있었습니다. 특히 React, Spring Boot, Flask AI 서버 사이에 데이터를 주고받는 부분을 직접 구현하면서 각 서버가 맡는 역할을 이해할 수 있었습니다.",
       "gallery": [
         {
           "src": "images/projects/ecosolar/07.webp",
@@ -517,7 +517,7 @@
         }
       ],
       "troubleshooting": "",
-      "result": "ERP 시스템 내에서 각 부서 간 실시간 데이터 연동 구조를 구현하면서 기업 업무를 기능 단위로 해석하고 연결하는 경험을 했습니다. 입출고와 알림 시스템을 통해 트랜잭션 제어, 사용자 세션 관리, 요청 코드 분기, 다단계 결재 흐름을 실습했습니다. 실시간 메시징을 위한 소켓 관리와 기능 간 데이터 연결을 경험한 프로젝트입니다.",
+      "result": "ERP 시스템 내에서 각 부서 간 실시간 데이터 연동 구조를 구현하면서 기업 업무를 기능 단위로 해석하고 연결하는 경험을 했습니다. 입출고와 알림 시스템을 통해 트랜잭션 제어, 사용자 세션 관리, 요청 코드 분기, 다단계 결재 흐름을 실습했습니다.",
       "gallery": [
         {
           "src": "images/projects/erp-mini/01.webp",
@@ -567,7 +567,7 @@
       "image": "images/projects/medicine-box/cover.webp",
       "overview": "치매 노인 또는 약물 오남용 가능성이 있는 사용자의 안전한 복약을 돕기 위해, 약 복용 시간에만 보관함이 열리고 그 외 시간에는 잠기도록 설계한 스마트 약품 보관함 프로젝트입니다. 보호자 관점의 상태 확인과 향후 IoT 연동까지 고려해 제품 구조를 기획했습니다.\n\n팀 구성: 4인\n기여도: 약 20% · 하드웨어 설계 및 발표자료 제작 담당",
       "problem": "인지 기능 저하로 약을 중복 복용하거나 복용을 잊는 상황에서 단순 알림만으로는 복약 사고를 막기 어렵다는 문제에서 출발했습니다. 환자와 보호자를 함께 고려해 지정된 시간에만 물리적으로 보관함을 열 수 있고, 복용 여부 확인과 향후 원격 알림으로 확장할 수 있는 구조를 목표로 했습니다.",
-      "contribution": "하드웨어 설계\n• 적외선 센서를 활용한 복용 감지와 시간 기반 잠금장치 회로 구성\n• 실제 구동 로직과 전력 흐름을 고려한 센서 배치 및 보관함 구조 설계\n• 향후 외부 장치 연동을 고려한 구조 설계\n\n발표 자료\n• 프로젝트 배경 → 문제 인식 → 시스템 구성 흐름으로 발표 자료 구성\n• 슬라이드 디자인 담당",
+      "contribution": "하드웨어 설계\n• 적외선 센서를 활용한 복용 감지와 시간 기반 잠금장치 회로 구성\n• 센서 배치와 보관함 구조 설계\n\n발표 자료\n• 프로젝트 배경 → 문제 인식 → 시스템 구성 흐름으로 발표 자료 구성\n• 슬라이드 디자인 담당",
       "implementation": "주요 기능\n• 약 복용 시간에만 도어를 열고 그 외에는 자동 잠금\n• LCD로 현재 시간과 상태 표시\n• 설정용 버튼 및 수동 제어 인터페이스\n\n개발 흐름\n아이디어 회의 → 시간 기반 제어·서보모터 잠금·LCD 인터페이스 설계 → Arduino 회로와 모터 작동 테스트 → MDF·아크릴 기반 시제품 제작 → 기능 시연 및 최종 발표 준비",
       "architecture": "시간/설정 입력 → Arduino 제어 → IR 센서로 복용 여부 감지 → 서보모터 기반 잠금/해제 → LCD 상태 표시\n\n향후 블루투스·IoT 모듈을 연결해 보호자 앱에서 상태를 확인하고 실시간 알림을 제공하는 방향을 고려했습니다.",
       "architectureFlows": [
