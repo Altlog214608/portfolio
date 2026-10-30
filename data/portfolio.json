@@ -259,13 +259,147 @@
       ]
     },
     {
+      "id": "chomchom",
+      "routeKey": "chomchom",
+      "title": "촘촘 — 여행 지도 앱",
+      "category": "AWS · SERVERLESS · MAP",
+      "level": "Lv.3",
+      "date": "2026.10 ~ 운영 중",
+      "order": 1,
+      "published": true,
+      "featured": true,
+      "live": true,
+      "description": "일본 여행 일정을 지도 위에서 짜고, 하루 동선을 실제 길을 따라 3D로 재생해 링크 하나로 공유하는 반응형 웹 앱. 읽기 데이터는 모두 정적 파일로, 계정·일정만 서버리스 API로 처리해 사용자가 적을 때 비용이 거의 들지 않게 만들었습니다.",
+      "highlights": [
+        {
+          "value": "81→25MB",
+          "label": "재생 40초 타일 전송"
+        },
+        {
+          "value": "217개",
+          "label": "자동 테스트"
+        },
+        {
+          "value": "약 $0.05",
+          "label": "월 예상 비용(현재 규모)"
+        }
+      ],
+      "role": "1인 개발 · 기획, 데이터 스키마, 아키텍처·비용 설계, AWS CDK 인프라와 CI/CD, 데이터 출처·라이선스 판단, 운영 환경 시험 / 코드 구현은 AI 코딩 도구(Claude Code)와 협업",
+      "tags": [
+        "AWS CDK",
+        "AWS Lambda",
+        "API Gateway",
+        "DynamoDB",
+        "Cognito",
+        "S3",
+        "CloudFront",
+        "Route 53",
+        "EventBridge",
+        "Amazon Translate",
+        "GitHub Actions",
+        "TypeScript",
+        "React",
+        "MapLibre",
+        "PMTiles",
+        "Vitest"
+      ],
+      "github": "",
+      "demo": "https://chomchom.koicut.com",
+      "image": "images/projects/chomchom/card.webp",
+      "overview": "여행 일정을 표나 메모로 짜면 장소 사이 거리와 시간이 맞는지 한눈에 보이지 않습니다. 촘촘은 장소를 지도에서 고르고 끌어 놓아 일차별 일정을 만들고, 도착 예상 시각과 '시간이 맞지 않아요' 경고를 바로 보여 주며, 하루 동선을 3D 지도 위에서 재생합니다. 만든 일정은 로그인 없이 볼 수 있는 초대 링크로 동행자에게 공유합니다.\n\n도쿄·오사카·교토·후쿠오카·삿포로·오키나와 6개 도시를 지원하고, koicut.com의 하위 주소(chomchom.koicut.com)로 운영하고 있습니다.\n\n주요 기능\n• 일정 편집: 후보 목록 → 끌어 놓기(휴대폰은 위·아래 버튼), 시간순 자동 정렬, 시작 시각 정확/대략/없음, 머무는 시간, 이동 시간 직접 입력 + 도보 시간 제안\n• 지도: 3D 건물 지도(기기 성능이 부족하면 평면으로 자동 전환), 실제 길을 따라가는 동선 재생(도보는 골목, 지하철은 선로), 출발 공항에서 도시까지 비행 인트로\n• 장소: OpenStreetMap에서 가져온 공용 장소 5,277곳, 근처 찾기(지도에서 찍은 곳 기준·반경), 명소 사진 3,745장(Wikimedia Commons), 운영 시간·주소·한 줄 설명이 담긴 장소 정보 창\n• 공유: 보기 전용 초대 링크(끄기·재발급), 숙소 위치 숨김/대략 구역, 인쇄 스타일\n• 계정: 이메일·구글 로그인, 자동 저장, 내 장소·비공개 별점과 메모, 계정 삭제, 로그인 없이 먼저 써 보기",
+      "problem": "지도 앱은 보통 타일 서버·길찾기 API·장소 검색 API 같은 유료 외부 서비스에 기대고, 사용자가 없어도 서버 비용이 나갑니다. 무료로 오래 운영할 개인 프로젝트라 '쓰지 않을 때 거의 0원'이면서, 다른 사람의 일정이 절대 보이지 않는 구조가 필요했습니다.\n\n목표\n• 지도 타일·장소·철도망처럼 읽기만 하는 데이터는 정적 파일로 만들어 CloudFront에서 제공(타일 서버·외부 지도 API 없음)\n• 동선의 길 모양은 외부 길찾기 서비스 없이 브라우저가 지도 타일과 철도망 파일로 계산\n• 계정·일정만 서버리스 API로, 모든 읽기·쓰기에서 서버가 소유자를 검사\n• 지도·사진·설명 데이터의 출처와 라이선스(ODbL, CC BY-SA 등)를 확인하고 화면에 표기\n• 인프라 전체를 코드(AWS CDK)로, 배포는 main 푸시만으로",
+      "contribution": "설계와 운영 결정\n• 데이터 스키마(일정·일차·항목·후보·공유 링크·내 장소)를 코드보다 먼저 정하고 문서로 남김\n• 공유는 '복사본' 방식: 일정에 넣을 때 장소 이름·아이콘·위치를 복사해 두어 공유 화면에 소유자·내 장소 목록·후보가 나가지 않게 설계\n• 비용 상한을 설계에 포함: API 초당 10·버스트 20 제한, 사용자당 일정 30개·내 장소 200개, 입력 크기 상한(문서 350KB 등), 예산 알람\n• 규모별 월 비용 추정(사용자 0명·1,000명·10,000명)과 늘어날 때 손볼 곳을 문서로 정리\n• 데이터 라이선스 판단: 구글 지도·매체 콘텐츠·외부 평점은 쓰지 않고, 위키데이터 한 줄 설명(CC0)과 라이선스를 확인한 Commons 사진만 사용\n\n인프라·보안\n• AWS CDK(TypeScript) 스택 하나로 S3·CloudFront(OAC, CSP·HSTS 헤더)·Cognito·HTTP API·Lambda(Node 24, ARM)·DynamoDB·EventBridge 수집기·CloudWatch 경보 구성, 서울 리전\n• GitHub Actions: 모든 푸시에서 테스트·빌드·cdk synth, main은 OIDC 역할로 배포 + S3 동기화 + 캐시 무효화(장기 액세스 키 없음)\n• 구글 OAuth 비밀은 Secrets Manager를 CloudFormation 동적 참조로 읽어 저장소·템플릿에 값이 남지 않게 함\n• 같은 계정의 다른 프로젝트와 태그로 비용을 나누고, 공유 리소스(Route 53 영역, GitHub OIDC 공급자)는 레코드 추가·조회만\n\n개발 방식 (AI 협업)\n• 프로젝트 규칙(CLAUDE.md)에 금지 사항·먼저 물어볼 결정·완료 체크리스트를 정하고 Claude Code와 함께 구현했으며, 커밋 기록에 AI 공동 작성이 표시되어 있습니다.",
+      "implementation": "지도: OpenStreetMap 데이터를 Planetiler로 OpenMapTiles 스키마의 PMTiles 한 파일(1.3GB)로 만들어 S3에 올리고, 브라우저가 CloudFront에 범위 요청으로 필요한 타일만 받습니다. 지도 파일은 손으로 실행하는 GitHub Actions 작업이 만듭니다.\n\n동선 재생: 보도·차도 벡터 타일을 읽어 그래프를 만들고 다익스트라로 길을 찾습니다. 지하철 구간은 가까운 역까지 걷고 OSM 철도망 파일(도쿄 742역 등)을 따라갑니다. 계산은 모두 브라우저에서 하고 결과만 일정에 저장합니다.\n\n장소 데이터: Node 스크립트가 Overpass(OSM)에서 명소·식당·쇼핑을 가져오고, 위키데이터로 한국어 이름·사진·설명을 보강합니다. 한국어 이름이 없으면 Amazon Translate로 번역하고 '(기계 번역)'으로 표시합니다. 결과는 저장소에 JSON으로 두고 빌드 때 정적 파일로 배포합니다.\n\nAPI: HTTP API + Cognito JWT 권한 부여자 → Lambda → DynamoDB 단일 테이블(PK=USER#sub). 저장은 version 필드로 충돌을 막고(409), 공유 링크는 256비트 토큰을 SHA-256 해시로 조회합니다. 계정 삭제는 데이터 → 로그인 계정 순서로 지웁니다.\n\n테스트: 시간 계산·정렬·경고·길 계산 Vitest 124개, API 소유자 검사·입력 검사·공유·계정 삭제 Vitest 93개, 운영 주소에서 헤드리스 Chrome(CDP)으로 PC·휴대폰 화면 끝에서 끝까지 시험(임시 계정은 시험 뒤 삭제).",
+      "architecture": "읽기 데이터(앱, 지도 타일, 공용 장소, 철도망, 사진)는 모두 S3 + CloudFront 정적 파일이고, 서버 호출은 로그인·일정 저장·공유 링크 조회뿐입니다. 상시 실행되는 서버나 타일 서버가 없어 지금 규모의 월 비용은 약 $0.05로 추정합니다(요금표 단가 × 측정한 전송량). 사용자 1,000명이면 약 $15로, 대부분이 자동 저장 쓰기와 타일 전송입니다.",
+      "architectureFlows": [
+        {
+          "label": "웹 · 지도",
+          "nodes": [
+            "브라우저 (React + MapLibre)",
+            "Route 53",
+            "CloudFront · ACM",
+            "S3 (앱 · PMTiles · 장소 JSON · 사진)"
+          ]
+        },
+        {
+          "label": "계정 · 일정",
+          "nodes": [
+            "Cognito (이메일 · 구글, PKCE)",
+            "HTTP API (JWT, 속도 제한)",
+            "Lambda (Node 24 ARM)",
+            "DynamoDB (PK=USER#sub)"
+          ]
+        },
+        {
+          "label": "공유",
+          "nodes": [
+            "초대 링크 /shared/토큰",
+            "HTTP API (권한 부여자 없음)",
+            "Lambda (토큰 해시 조회)",
+            "보기 전용 복사본"
+          ]
+        },
+        {
+          "label": "축제 수집",
+          "nodes": [
+            "EventBridge (주 1회)",
+            "수집 Lambda",
+            "Amazon Translate",
+            "비공개 S3",
+            "관리자 확인 후 게시"
+          ]
+        },
+        {
+          "label": "배포",
+          "nodes": [
+            "GitHub Actions",
+            "OIDC 역할",
+            "CDK 배포",
+            "S3 동기화 · CloudFront 무효화"
+          ]
+        }
+      ],
+      "troubleshooting": "동선 재생 40초에 지도 타일 81MB 전송\n→ CDP로 받은 바이트를 세어 보니 298번 요청 중 178번이 같은 범위였습니다. pmtiles 라이브러리가 Windows의 Chrome·Edge에서 범위 요청을 no-store로 보내 브라우저 캐시가 꺼져 있었고, 지도는 같은 z14 타일을 z15·z16에서 다시 요청했습니다. 받은 타일을 메모리에 담는 캐시(64MB, 최근 순)를 앞에 두고 지도와 길 계산이 같은 연결을 쓰게 해 중복 0번, 25MB로 줄였습니다. 전송량이 비용의 대부분이라 규모가 커질수록 차이가 커지는 부분입니다.\n\n휴대폰에서 후보 목록을 스크롤하면 화면이 반투명하게 덮임\n→ 손가락 스크롤이 마우스용 끌기 센서에 잡혀 끌기 상태가 남아 있었습니다. 마우스·펜은 6px 움직이면 끌기, 손가락은 길게 누를 때만 끌기로 나누고 터치가 끝나거나 취소되면 상태를 초기화했습니다.\n\n교토의 절 설명이 '성공회 신부'로 표시\n→ 번역 문제로 보였지만, 원인은 위키데이터 영어 설명 자체가 잘못 편집된 것이었습니다. 번역 원문을 일본어 설명으로 바꾸고, 위키데이터 항목이 사람이거나 좌표가 2km 넘게 떨어지면 연결을 버리는 검사와 손으로 고치는 파일을 추가했습니다. 외부 데이터는 그대로 믿지 않고 검사 규칙을 두어야 한다는 걸 배웠습니다.\n\n지도 파일 생성 중 GitHub Actions 러너 디스크 부족\n→ 일본 전체를 상세하게 만들면 러너 디스크 한도를 넘었습니다. 지원 도시가 있는 지역(간토·간사이·규슈·홋카이도)만 상세하게, 나머지는 도시 이름과 큰 도로·철도만 넣어 한 파일로 만들고, 같은 위치 9곳을 공개 타일과 나란히 비교해 화면이 같은지 확인했습니다.",
+      "result": "2026-10-18에 시작해 6개 도시를 지원하는 서비스로 운영 중입니다(chomchom.koicut.com). 커밋 70여 개, 자동 테스트 217개, 모든 main 푸시가 테스트를 거쳐 자동 배포됩니다.\n\n• 정적 파일 중심 구조로 지금 규모의 월 비용 약 $0.05(추정), 사용자 1,000명 약 $15, 10,000명 약 $400을 단가와 측정 전송량으로 계산해 문서로 남김\n• 재생 중 타일 전송 81MB → 25MB(중복 요청 178번 → 0번)\n• 남의 일정은 404, 공유 화면에는 복사본만: 소유자 검사 테스트와 운영 환경 임시 계정 시험으로 확인\n\n배운 점\n• 정적으로 만들 수 있는 것은 정적으로: 타일 서버·길찾기 API를 없애는 것이 서버리스로 바꾸는 것보다 비용에 더 큰 영향을 준다는 것\n• 비용은 계산만으로는 부족하고, 실제로 받는 바이트를 세어 봐야 라이브러리 동작 같은 숨은 원인이 보인다는 것\n• 오픈 데이터도 라이선스·출처 표기·데이터 오류 검사까지가 운영의 일부라는 것\n• Terraform(KoiCut)에 이어 AWS CDK로 IaC를 해 보며 두 도구의 장단점을 비교할 수 있었다는 것",
+      "gallery": [
+        {
+          "src": "images/projects/chomchom/cover.webp",
+          "caption": "3D 지도 위 하루 동선 재생"
+        },
+        {
+          "src": "images/projects/chomchom/01.webp",
+          "caption": "첫 화면: 여행지 고르기와 비행 경로"
+        },
+        {
+          "src": "images/projects/chomchom/02.webp",
+          "caption": "편집 화면: 지도 · 후보 · 일정"
+        },
+        {
+          "src": "images/projects/chomchom/03.webp",
+          "caption": "장소 정보 창: 사진 · 운영 시간 · 주소"
+        },
+        {
+          "src": "images/projects/chomchom/04.webp",
+          "caption": "한눈에 보는 시간표"
+        },
+        {
+          "src": "images/projects/chomchom/05.webp",
+          "caption": "근처 찾기: 반경과 분류 색"
+        },
+        {
+          "src": "images/projects/chomchom/06.webp",
+          "caption": "휴대폰 화면: 동선 재생과 일정 시트"
+        }
+      ]
+    },
+    {
       "id": "pdf-to-hwpx",
       "routeKey": "pdf-to-hwpx",
       "title": "PDF → 한글(HWPX) 변환기",
       "category": "WEB · AWS · DOCUMENT",
       "level": "Lv.3",
       "date": "2026.09 ~ 운영 중",
-      "order": 1,
+      "order": 2,
       "published": true,
       "featured": true,
       "live": true,
@@ -359,7 +493,7 @@
       "category": "WEB · AI · DATA",
       "level": "Lv.3",
       "date": "2025.03 ~ 2025.05",
-      "order": 2,
+      "order": 3,
       "published": true,
       "featured": true,
       "live": false,
@@ -466,7 +600,7 @@
       "category": "SYSTEM · BACKEND",
       "level": "Lv.2",
       "date": "2025.02 ~ 2025.03",
-      "order": 3,
+      "order": 4,
       "published": true,
       "featured": true,
       "live": false,
@@ -550,7 +684,7 @@
       "category": "IOT · HARDWARE",
       "level": "Lv.1",
       "date": "2022 · 창업경진대회",
-      "order": 4,
+      "order": 5,
       "published": true,
       "featured": false,
       "live": false,
@@ -613,7 +747,7 @@
       "category": "IOT · EMBEDDED",
       "level": "Lv.1",
       "date": "2023 · 캡스톤디자인",
-      "order": 5,
+      "order": 6,
       "published": true,
       "featured": false,
       "live": false,
